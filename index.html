@@ -29,16 +29,43 @@
         .movie-title { font-size: 15px; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .movie-meta { display: flex; justify-content: space-between; font-size: 13px; color: #999; margin-top: 8px; }
         .rating { color: #ff6a00; font-weight: bold; }
-        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(5, 5, 5, 0.98); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; padding: 20px; }
-        .player-container { width: 90%; max-width: 1050px; height: 0; padding-bottom: 50.625%; position: relative; background-color: black; box-shadow: 0 0 30px rgba(255, 106, 0, 0.4); border-radius: 12px; overflow: hidden; border: 2px solid #ff6a00; }
+        
+        /* Исправленный Модальный Плеер с прокруткой */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(5, 5, 5, 0.98); z-index: 1000; overflow-y: auto; padding: 40px 20px; }
+        .player-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .player-container { width: 90%; max-width: 1005px; height: 0; padding-bottom: 50.625%; position: relative; background-color: black; box-shadow: 0 0 30px rgba(255, 106, 0, 0.4); border-radius: 12px; overflow: hidden; border: 2px solid #ff6a00; }
         .player-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .close-btn { position: absolute; top: 25px; right: 35px; font-size: 40px; color: #999; cursor: pointer; transition: 0.3s; }
+        .close-btn { position: fixed; top: 20px; right: 35px; font-size: 45px; color: #999; cursor: pointer; transition: 0.3s; z-index: 1010; }
         .close-btn:hover { color: #ff6a00; transform: rotate(90deg); }
-        .movie-details { margin-top: 25px; color: white; text-align: center; max-width: 850px; }
-        .movie-details h2 { color: #ff6a00; margin-bottom: 12px; }
-        .movie-details p { font-size: 15px; color: #bbb; line-height: 1.6; }
+        .movie-details { margin-top: 25px; color: white; text-align: center; max-width: 850px; width: 100%; }
+        .movie-details h2 { color: #ff6a00; font-size: 28px; margin-bottom: 12px; }
+        .movie-details p { font-size: 16px; color: #bbb; line-height: 1.6; margin-bottom: 25px; }
+        
+        /* Стили Актеров */
+        .cast-section { width: 100%; max-width: 850px; margin-top: 30px; border-top: 1px solid #222; padding-top: 20px; text-align: left; }
+        .cast-title { color: #ff6a00; font-size: 20px; margin-bottom: 15px; text-transform: uppercase; }
+        .cast-grid { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 10px; }
+        .cast-card { flex: 0 0 110px; text-align: center; }
+        .cast-card img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #ff6a00; margin-bottom: 8px; }
+        .cast-name { font-size: 13px; color: white; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        /* Стили Комментариев */
+        .comments-section { width: 100%; max-width: 850px; margin-top: 40px; border-top: 1px solid #222; padding-top: 20px; text-align: left; }
+        .comments-title { color: #ff6a00; font-size: 20px; margin-bottom: 15px; text-transform: uppercase; }
+        .comment-form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
+        .comment-form input, .comment-form textarea { background-color: #141414; border: 1px solid #ff6a00; border-radius: 8px; padding: 12px; color: white; outline: none; font-size: 15px; }
+        .comment-form textarea { height: 80px; resize: none; }
+        .comment-form button { background-color: #ff6a00; color: black; border: none; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        .comment-form button:hover { background-color: #ff8533; box-shadow: 0 0 10px #ff6a00; }
+        .comments-list { display: flex; flex-direction: column; gap: 15px; }
+        .comment-item { background-color: #141414; border-radius: 8px; padding: 15px; border-left: 4px solid #ff6a00; }
+        .comment-header { display: flex; justify-content: space-between; font-size: 13px; color: #ff6a00; font-weight: bold; margin-bottom: 5px; }
+        .comment-body { font-size: 14px; color: #e5e5e5; line-height: 1.4; }
+        
         .rtl { direction: rtl; text-align: right; }
-        .rtl .section-title { border-left: none; border-right: 5px solid #ff6a00; padding-left: 0; padding-right: 15px; }
+        .rtl .section-title { border-left: none; border-right: 5px solid #ff6a00; padding-right: 15px; }
+        .rtl .cast-section, .rtl .comments-section { text-align: right; }
+        .rtl .comment-item { border-left: none; border-right: 4px solid #ff6a00; }
     </style>
 </head>
 <body>
@@ -61,6 +88,7 @@
             <option value="de-DE">Deutsch (DE)</option>
         </select>
     </header>
+    
     <main id="main-content">
         <h2 class="section-title" id="grid-title">
             <img class="title-tiger" src="https://img.icons8.com/ios-filled/30/ff6a00/tiger.png">
@@ -68,15 +96,42 @@
         </h2>
         <div class="movies-grid" id="movies-grid"></div>
     </main>
+
+    <!-- Модальное окно плеера -->
     <div class="player-modal" id="player-modal">
         <span class="close-btn" onclick="closePlayer()">&times;</span>
-        <div class="player-container"><iframe id="video-iframe" src="" allowfullscreen></iframe></div>
-        <div class="movie-details" id="movie-details"></div>
+        <div class="player-wrapper">
+            <!-- Sandbox блокирует всплывающие окна казино -->
+            <div class="player-container">
+                <iframe id="video-iframe" src="" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+            </div>
+            
+            <div class="movie-details" id="movie-details"></div>
+            
+            <!-- Блок Актеров -->
+            <div class="cast-section" id="cast-section">
+                <h3 class="cast-title" id="cast-lbl">В главных ролях</h3>
+                <div class="cast-grid" id="cast-grid"></div>
+            </div>
+            
+            <!-- Блок Комментариев -->
+            <div class="comments-section">
+                <h3 class="comments-title" id="comments-lbl">Отзывы Гостей</h3>
+                <div class="comment-form">
+                    <input type="text" id="comment-name" placeholder="Ваше имя / Name" required>
+                    <textarea id="comment-text" placeholder="Оставьте ваш отзыв о фильме... / Write a review..." required></textarea>
+                    <button onclick="addComment()" id="comment-btn">Отправить</button>
+                </div>
+                <div class="comments-list" id="comments-list"></div>
+            </div>
+        </div>
     </div>
+
     <script>
         const API_KEY = 'e97f6ed5cfa53eb5fd94bcda452770b6'; 
         const BASE_URL = 'https://api.themoviedb.org/3';
         const IMG_URL = 'https://image.tmdb.org/t/p/w500';
+        
         const moviesGrid = document.getElementById('movies-grid');
         const searchInput = document.getElementById('search-input');
         const searchBtn = document.getElementById('search-btn');
@@ -85,21 +140,42 @@
         const playerModal = document.getElementById('player-modal');
         const videoIframe = document.getElementById('video-iframe');
         const movieDetails = document.getElementById('movie-details');
+        const castGrid = document.getElementById('cast-grid');
+        const commentsList = document.getElementById('comments-list');
         const headerBar = document.getElementById('header-bar');
         const mainContent = document.getElementById('main-content');
+        const playerModalDiv = document.getElementById('player-modal');
+        
         let currentLanguage = langSelect.value;
+        let currentMovieId = null;
 
         loadTrending();
         searchBtn.addEventListener('click', performSearch);
         searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
         langSelect.addEventListener('change', (e) => { currentLanguage = e.target.value; updateInterfaceText(); loadTrending(); });
 
+        const labels = {
+            "ru": { cast: "В главных ролях", comm: "Отзывы Гостей", send: "Отправить" },
+            "en": { cast: "Top Cast", comm: "Guest Reviews", send: "Submit" },
+            "pt": { cast: "Elenco Principal", comm: "Comentários dos Hóspedes", send: "Enviar" },
+            "ar": { cast: "طاقم العمل", comm: "آراء الضيوف", send: "إرسال" },
+            "es": { cast: "Reparto Principal", comm: "Opiniones de los Huéspedes", send: "Enviar" },
+            "fr": { cast: "Acteurs Principaux", comm: "Avis des Invités", send: "Soumettre" },
+            "de": { cast: "Hauptdarsteller", comm: "Gastbewertungen", send: "Absenden" }
+        };
+
         function updateInterfaceText() {
+            const langKey = currentLanguage.substring(0,2);
+            const currentLabels = labels[langKey] || labels["en"];
+            document.getElementById('cast-lbl').innerText = currentLabels.cast;
+            document.getElementById('comments-lbl').innerText = currentLabels.comm;
+            document.getElementById('comment-btn').innerText = currentLabels.send;
+
             if(currentLanguage.startsWith('ar')) {
-                headerBar.classList.add('rtl'); mainContent.classList.add('rtl');
+                headerBar.classList.add('rtl'); mainContent.classList.add('rtl'); playerModalDiv.classList.add('rtl');
                 searchInput.placeholder = "بحث عن أفلام..."; searchBtn.innerText = "بحث"; titleText.innerText = "الأفلام الشائعة";
             } else {
-                headerBar.classList.remove('rtl'); mainContent.classList.remove('rtl');
+                headerBar.classList.remove('rtl'); mainContent.classList.remove('rtl'); playerModalDiv.classList.remove('rtl');
                 if(currentLanguage.startsWith('ru')) { searchInput.placeholder = "Поиск фильмов..."; searchBtn.innerText = "Найти"; titleText.innerText = "Популярные фильмы"; }
                 else if(currentLanguage.startsWith('pt')) { searchInput.placeholder = "Pesquisar filmes..."; searchBtn.innerText = "Buscar"; titleText.innerText = "Filmes Populares"; }
                 else if(currentLanguage.startsWith('es')) { searchInput.placeholder = "Buscar películas..."; searchBtn.innerText = "Buscar"; titleText.innerText = "Películas Populares"; }
@@ -108,39 +184,84 @@
                 else { searchInput.placeholder = "Search movies..."; searchBtn.innerText = "Search"; titleText.innerText = "Trending Movies"; }
             }
         }
+
         async function loadTrending() { fetchMovies(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}&language=${currentLanguage}`); }
+        
         async function performSearch() {
             const query = searchInput.value.trim(); if (!query) return;
-            if(currentLanguage.startsWith('ar')) titleText.innerText = `نتائج البحث عن: "${query}"`;
-            else if(currentLanguage.startsWith('ru')) titleText.innerText = `Результаты поиска: "${query}"`;
-            else if(currentLanguage.startsWith('pt')) titleText.innerText = `Resultados para: "${query}"`;
-            else if(currentLanguage.startsWith('es')) titleText.innerText = `Resultados de búsqueda: "${query}"`;
-            else if(currentLanguage.startsWith('fr')) titleText.innerText = `Résultats pour: "${query}"`;
-            else if(currentLanguage.startsWith('de')) titleText.innerText = `Suchergebnisse für: "${query}"`;
-            else titleText.innerText = `Search results for: "${query}"`;
+            const prefixes = {"ar":"نتائج البحث عن: ","ru":"Результаты поиска: ","pt":"Resultados para: ","es":"Resultados de búsqueda: ","fr":"Résultats pour: ","de":"Suchergebnisse für: "};
+            titleText.innerText = (prefixes[currentLanguage.substring(0,2)] || "Search results for: ") + `"${query}"`;
             fetchMovies(`${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=${currentLanguage}`);
         }
+
         async function fetchMovies(url) { const response = await fetch(url); const data = await response.json(); displayMovies(data.results); }
+        
         function displayMovies(movies) {
             moviesGrid.innerHTML = '';
-            const noResults = {"ru": "Ничего не найдено", "en": "No results found", "pt": "Nenhum resultado encontrado", "ar": "لم يتم العثور على نتائج", "es": "No se encontraron resultados", "fr": "Aucun résultat trouvé", "de": "Keine Ergebnisse gefunden"};
-            if(!movies || movies.length === 0) { moviesGrid.innerHTML = `<p style="color:#ff6a00;grid-column:1/-1;text-align:center;font-weight:bold;">${noResults[currentLanguage.substring(0,2)] || noResults["en"]}</p>`; return; }
+            if(!movies || movies.length === 0) { moviesGrid.innerHTML = `<p style="color:#ff6a00;grid-column:1/-1;text-align:center;font-weight:bold;">No results found</p>`; return; }
             movies.forEach(movie => {
                 if (!movie.poster_path) return;
                 const card = document.createElement('div'); card.classList.add('movie-card');
                 card.innerHTML = `<img src="${IMG_URL + movie.poster_path}"><div class="movie-info"><div class="movie-title">${movie.title}</div><div class="movie-meta"><span>${movie.release_date?movie.release_date.split('-')[0]:'N/A'}</span><span class="rating">★ ${movie.vote_average.toFixed(1)}</span></div></div>`;
-                card.addEventListener('click', () => {
-                    videoIframe.src = `https://vidsrc.to/embed/movie/${movie.id}`;
-                    movieDetails.innerHTML = `<h2>${movie.title}</h2><p>${movie.overview || ''}</p>`;
-                    if(currentLanguage.startsWith('ar')) movieDetails.classList.add('rtl'); else movieDetails.classList.remove('rtl');
-                    playerModal.style.display = 'flex';
-                });
+                card.addEventListener('click', () => openMovie(movie.id, movie.title, movie.overview));
                 moviesGrid.appendChild(card);
             });
         }
-        function closePlayer() { playerModal.style.display = 'none'; videoIframe.src = ''; }
+
+        async function openMovie(movieId, title, overview) {
+            currentMovieId = movieId;
+            videoIframe.src = `https://vidsrc.to/embed/movie/${movieId}`;
+            movieDetails.innerHTML = `<h2>${title}</h2><p>${overview || ''}</p>`;
+            
+            // Загрузка актеров
+            castGrid.innerHTML = '';
+            try {
+                const castRes = await fetch(`${BASE_URL}/movie/${movieId}/credits?api_key=${API_KEY}`);
+                const castData = await castRes.json();
+                castData.cast.slice(0, 6).forEach(actor => {
+                    const img = actor.profile_path ? (IMG_URL + actor.profile_path) : 'https://img.icons8.com/ios-filled/100/333333/user-male-circle.png';
+                    const actorCard = document.createElement('div');
+                    actorCard.classList.add('cast-card');
+                    actorCard.innerHTML = `<img src="${img}"><div class="cast-name">${actor.name}</div>`;
+                    castGrid.appendChild(actorCard);
+                });
+            } catch(e) { console.error(e); }
+
+            loadComments();
+            playerModal.style.display = 'block';
+            document.body.style.overflow = 'hidden'; // Запретить скролл заднего фона
+        }
+
+        function closePlayer() { playerModal.style.display = 'none'; videoIframe.src = ''; document.body.style.overflow = 'auto'; }
+
+        // Логика комментариев
+        function loadComments() {
+            commentsList.innerHTML = '';
+            const allComments = JSON.parse(localStorage.getItem('amur_comments') || '{}');
+            const movieComments = allComments[currentMovieId] || [];
+            movieComments.forEach(c => {
+                const item = document.createElement('div');
+                item.classList.add('comment-item');
+                item.innerHTML = `<div class="comment-header"><span>${c.name}</span><span>${c.date}</span></div><div class="comment-body">${c.text}</div>`;
+                commentsList.appendChild(item);
+            });
+        }
+
+        function addComment() {
+            const nameInput = document.getElementById('comment-name');
+            const textInput = document.getElementById('comment-text');
+            if(!nameInput.value.trim() || !textInput.value.trim()) return;
+
+            const allComments = JSON.parse(localStorage.getItem('amur_comments') || '{}');
+            if(!allComments[currentMovieId]) allComments[currentMovieId] = [];
+
+            const date = new Date().toLocaleDateString();
+            allComments[currentMovieId].push({ name: nameInput.value.trim(), text: textInput.value.trim(), date: date });
+            localStorage.setItem('amur_comments', JSON.stringify(allComments));
+
+            nameInput.value = ''; textInput.value = '';
+            loadComments();
+        }
     </script>
 </body>
 </html>
-
-```

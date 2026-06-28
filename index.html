@@ -1,171 +1,380 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AMUR - Кинопортал</title>
-    
-    <!-- === НАЧАЛО CSS-СТИЛЕЙ ДЛЯ ТВОЕГО ДИЗАЙНА === -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMUR Cinema</title>
     <style>
-        /* 1. Настройка основного фона всего сайта */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            
-            /* ФОН ЗДАНИЯ: Вставь сюда ссылку на свое изображение */
-            background-image: url('ссылка_на_твое_изображение_здания.jpg'); 
-            
-            background-size: cover;          /* Фон растягивается на весь экран */
-            background-position: center;      /* Фон по центру */
-            background-attachment: fixed;    /* Фон не скроллится (как здание) */
-            
-            position: relative;              /* Для позиционирования логотипа */
-            color: white;                    /* Текст на сайте будет светлым */
-        }
-
-        /* Затемнение фона для лучшей читаемости текста (рекомендуется) */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #0d0d0d; color: #e5e5e5; overflow-x: hidden; position: relative; min-height: 100vh; }
+        
+        /* Глобальный хищный бэкграунд (разбросанные тигры и когти) */
         body::before {
-            content: '';
+            content: "";
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный слой */
+            pointer-events: none;
             z-index: -1;
+            /* Набор из иконок тигра и когтей в разных углах экрана */
+            background-image: 
+                url('https://img.icons8.com/ios-filled/150/ff6a00/tiger.png'),
+                url('https://img.icons8.com/ios-filled/120/ff6a00/slash-damage.png'),
+                url('https://img.icons8.com/ios-filled/130/ff6a00/tiger.png'),
+                url('https://img.icons8.com/ios-filled/160/ff6a00/slash-damage.png'),
+                url('https://img.icons8.com/ios-filled/100/ff6a00/tiger.png');
+            background-position: 
+                10% 20%, 
+                85% 15%, 
+                40% 75%, 
+                5% 80%, 
+                90% 65%;
+            background-repeat: no-repeat;
+            opacity: 0.035; /* Супер-легкая видимость, чтобы не рябило в глазах */
+            filter: blur(0.5px);
         }
 
-        /* 2. МАЛЕНЬКОЕ ЛОГО "AMUR" В УГЛУ (стилизовано под надпись на здании) */
-        .site-logo {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #dcdcdc; /* Светло-серый, как бетон/металл */
-            text-transform: uppercase;
-            background: rgba(0, 0, 0, 0.7); /* Фон для видимости */
-            padding: 5px 10px;
-            border-radius: 4px;
-            z-index: 100;
+        header { background-color: #141414; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #ff6a00; box-shadow: 0 4px 20px rgba(255, 106, 0, 0.15); }
+        .logo-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .logo { color: #ff6a00; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px rgba(255, 106, 0, 0.5); }
+        .tiger-icon { width: 30px; height: 30px; opacity: 0.9; }
+        .search-container { display: flex; align-items: center; gap: 10px; width: 45%; }
+        .search-container input { width: 100%; padding: 12px 20px; border-radius: 25px; border: 2px solid #ff6a00; background-color: #1a1a1a; color: white; font-size: 16px; outline: none; transition: 0.3s; }
+        .search-container input:focus { box-shadow: 0 0 12px rgba(255, 106, 0, 0.6); }
+        .search-container button { padding: 12px 25px; border-radius: 25px; border: none; background-color: #ff6a00; color: black; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .search-container button:hover { background-color: #ff8533; box-shadow: 0 0 15px #ff6a00; transform: scale(1.03); }
+        select { background-color: #141414; color: #ff6a00; border: 2px solid #ff6a00; padding: 10px 15px; border-radius: 20px; cursor: pointer; outline: none; font-weight: bold; }
+        
+        main { padding: 40px 5%; position: relative; }
+        .section-title { color: white; font-size: 26px; margin-bottom: 25px; border-left: 5px solid #ff6a00; padding-left: 15px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .title-tiger { width: 24px; height: 24px; opacity: 0.8; }
+        .movies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px; }
+        
+        /* Карточки фильмов с небольшим эффектом при наведении */
+        .movie-card { background-color: #141414; border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid #222; transition: transform 0.2s, border-color 0.2s; }
+        .movie-card:hover { border-color: #ff6a00; box-shadow: 0 5px 15px rgba(255, 106, 0, 0.2); transform: translateY(-4px); }
+        .movie-card img { width: 100%; height: 270px; object-fit: cover; }
+        .movie-info { padding: 12px; background: linear-gradient(180deg, #141414 0%, #0a0a0a 100%); }
+        .movie-title { font-size: 14px; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .movie-meta { display: flex; justify-content: space-between; font-size: 12px; color: #999; margin-top: 6px; }
+        .rating { color: #ff6a00; font-weight: bold; }
+        
+        /* Модальное окно */
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(5, 5, 5, 0.98); z-index: 1000; overflow-y: auto; padding: 20px 10px; }
+        .player-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        
+        /* Декоративные следы когтей по бокам от самого плеера */
+        .player-container { 
+            width: 100%; max-width: 900px; height: 0; padding-bottom: 56.25%; position: relative; background-color: black; 
+            box-shadow: 0 0 30px rgba(255, 106, 0, 0.3); border-radius: 12px; overflow: hidden; border: 2px solid #ff6a00; 
         }
-
-        /* 3. ДИЗАЙН КОММЕНТАРИЕВ С "КОГТЯМИ" */
-        #comments-list {
-            margin-top: 20px;
-            max-width: 600px;
-        }
-
-        .comment-item {
-            position: relative; /* Чтобы когти были внутри коммента */
-            background: rgba(20, 20, 20, 0.9); /* Темный фон коммента */
-            border: 1px solid #444;
-            color: #eee;
-            padding: 15px 20px 15px 50px; /* Отступ слева для когтей */
-            margin-bottom: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            overflow: hidden; /* Чтобы когти не вылезали за края */
-        }
-
-        /* ЭФФЕКТ КОГТЕЙ: Стилизация 'разреза' (можно улучшить, если вставить картинку когтей) */
-        .comment-item::before {
-            content: ''; 
-            position: absolute;
-            top: 10%;
-            left: 10px;
-            width: 30px; /* Ширина зоны когтей */
-            height: 80%;
-            
-            /* ГРАДИЕНТ, имитирующий следы: вертикальные полосы */
-            background: linear-gradient(90deg, 
-                transparent 10%, 
-                #ff4d4d 15%, /* Ярко-красный "разрез" */
-                transparent 20%, 
-                #ff4d4d 25%,
-                transparent 30%, 
-                #ff4d4d 35%,
-                transparent 40%
-            );
-            
-            opacity: 0.8;
-            transform: rotate(-5deg); /* Немного наклона для динамики */
-        }
-
-        /* Стили заголовка коммента */
-        .comment-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9em;
-            color: #aaa;
-            margin-bottom: 5px;
+        .player-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; background: #000; }
+        .close-btn { position: fixed; top: 15px; right: 20px; font-size: 40px; color: #999; cursor: pointer; z-index: 1010; width: 45px; height: 45px; text-align: center; line-height: 40px; background: rgba(0,0,0,0.5); border-radius: 50%; }
+        .close-btn:hover { color: #ff6a00; }
+        
+        /* Декоративные элементы царапин внутри модалки */
+        .player-wrapper::before {
+            content: ""; position: absolute; top: 100px; left: 5%; width: 100px; height: 100px;
+            background-image: url('https://img.icons8.com/ios-filled/100/ff6a00/slash-damage.png');
+            background-size: contain; opacity: 0.1; pointer-events: none; transform: rotate(-25deg);
         }
         
-        .comment-header span:first-child {
-            font-weight: bold;
-            color: #ff9999; /* Имя комментатора выделено */
-        }
+        /* Панель настроек под плеером */
+        .player-controls-panel { width: 100%; max-width: 900px; background-color: #141414; margin-top: 20px; padding: 15px; border-radius: 12px; border: 1px solid #222; display: flex; flex-direction: column; gap: 15px; position: relative; }
+        .control-row { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .control-label { font-size: 13px; font-weight: bold; color: #999; text-transform: uppercase; min-width: 120px; }
+        .switcher-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        
+        .server-btn, .audio-btn { padding: 6px 14px; border: 2px solid #ff6a00; background: transparent; color: #ff6a00; font-weight: bold; border-radius: 15px; cursor: pointer; transition: 0.2s; text-transform: uppercase; font-size: 11px; }
+        .server-btn.active, .audio-btn.active { background: #ff6a00; color: black; box-shadow: 0 0 10px rgba(255,106,0,0.4); }
+        
+        .movie-details { margin-top: 20px; color: white; text-align: center; max-width: 850px; width: 100%; }
+        .movie-details h2 { color: #ff6a00; font-size: 24px; margin-bottom: 10px; }
+        .movie-details p { font-size: 15px; color: #bbb; line-height: 1.5; margin-bottom: 20px; }
+        
+        .cast-section { width: 100%; max-width: 850px; margin-top: 25px; border-top: 1px solid #222; padding-top: 15px; text-align: left; }
+        .cast-title { color: #ff6a00; font-size: 18px; margin-bottom: 12px; text-transform: uppercase; }
+        .cast-grid { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .cast-card { flex: 0 0 90px; text-align: center; }
+        .cast-card img { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 2px solid #ff6a00; margin-bottom: 6px; }
+        .cast-name { font-size: 12px; color: white; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        .comments-section { width: 100%; max-width: 850px; margin-top: 30px; border-top: 1px solid #222; padding-top: 15px; text-align: left; }
+        .comments-title { color: #ff6a00; font-size: 18px; margin-bottom: 12px; text-transform: uppercase; }
+        .comment-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        .comment-form input, .comment-form textarea { background-color: #141414; border: 1px solid #ff6a00; border-radius: 8px; padding: 10px; color: white; outline: none; font-size: 14px; }
+        .comment-form textarea { height: 70px; resize: none; }
+        .comment-form button { background-color: #ff6a00; color: black; border: none; padding: 10px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
+        .comments-list { display: flex; flex-direction: column; gap: 10px; }
+        .comment-item { background-color: #141414; border-radius: 8px; padding: 12px; border-left: 4px solid #ff6a00; }
+        .comment-header { display: flex; justify-content: space-between; font-size: 12px; color: #ff6a00; font-weight: bold; margin-bottom: 4px; }
+        .comment-body { font-size: 13px; color: #e5e5e5; }
+        
+        .rtl { direction: rtl; text-align: right; }
+        .rtl .section-title { border-left: none; border-right: 5px solid #ff6a00; padding-right: 15px; }
+        .rtl .cast-section, .rtl .comments-section { text-align: right; }
+        .rtl .comment-item { border-left: none; border-right: 4px solid #ff6a00; }
     </style>
-    <!-- === КОНЕЦ CSS-СТИЛЕЙ === -->
 </head>
 <body>
+    <header id="header-bar">
+        <div class="logo-container" onclick="loadTrending()">
+            <img class="tiger-icon" src="https://img.icons8.com/ios-filled/50/ff6a00/tiger.png">
+            <div class="logo">Amur Cinema</div>
+        </div>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Поиск фильмов...">
+            <button id="search-btn">Найти</button>
+        </div>
+        <select id="lang-select">
+            <option value="ru-RU">Русский (RU)</option>
+            <option value="en-US">English (EN)</option>
+            <option value="de-DE">Deutsch (DE)</option>
+            <option value="ar-AE">العربية (AR)</option>
+            <option value="fr-FR">Français (FR)</option>
+            <option value="it-IT">Italiano (IT)</option>
+            <option value="pt-BR">Português (BR)</option>
+            <option value="es-ES">Español (ES)</option>
+        </select>
+    </header>
+    
+    <main id="main-content">
+        <h2 class="section-title" id="grid-title">
+            <img class="title-tiger" src="https://img.icons8.com/ios-filled/30/ff6a00/tiger.png">
+            <span id="title-text">Популярные фильмы</span>
+        </h2>
+        <div class="movies-grid" id="movies-grid"></div>
+    </main>
 
-    <!-- 4. ДОБАВЛЯЕМ ЛОГОТИП НА СТРАНИЦУ -->
-    <div class="site-logo">AMUR KINO</div>
-
-    <!-- Твой HTML-каркас -->
-    <input type="text" id="comment-name" placeholder="Твое имя">
-    <textarea id="comment-text" placeholder="Твой комментарий"></textarea>
-    <button onclick="addComment()">Отправить</button>
-
-    <div id="comments-list"></div>
+    <div class="player-modal" id="player-modal">
+        <span class="close-btn" onclick="closePlayer()">&times;</span>
+        <div class="player-wrapper">
+            <div class="player-container">
+                <iframe id="video-iframe" src="" allowfullscreen></iframe>
+            </div>
+            
+            <!-- Панель управления плеером -->
+            <div class="player-controls-panel">
+                <!-- Выбор сервера -->
+                <div class="control-row">
+                    <span class="control-label" id="srv-lbl">Сервер / Server:</span>
+                    <div class="switcher-buttons">
+                        <button class="server-btn active" id="btn-srv1" onclick="switchServer(1)">Сервер 1</button>
+                        <button class="server-btn" id="btn-srv2" onclick="switchServer(2)">Сервер 2</button>
+                        <button class="server-btn" id="btn-srv3" onclick="switchServer(3)">Сервер 3</button>
+                    </div>
+                </div>
+                <!-- Прямой выбор языка в плеере -->
+                <div class="control-row">
+                    <span class="control-label" id="audio-lbl">Озвучка / Audio:</span>
+                    <div class="switcher-buttons" id="audio-buttons-container">
+                        <button class="audio-btn active" onclick="switchPlayerLanguage('ru')">RU</button>
+                        <button class="audio-btn" onclick="switchPlayerLanguage('en')">EN</button>
+                        <button class="audio-btn" onclick="switchPlayerLanguage('de')">DE</button>
+                        <button class="audio-btn" onclick="switchPlayerLanguage('ar')">AR</button>
+                        <button class="audio-btn" onclick="switchPlayerLanguage('fr')">FR</button>
+                        <button class="audio-btn" onclick="switchPlayerLanguage('it')">IT</button>
+                        <button class="audio-btn" onclick="switchPlayerLanguage('pt')">PT</button>
+                        <button class="audio-btn" onclick="switchPlayerLanguage('es')">ES</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="movie-details" id="movie-details"></div>
+            
+            <div class="cast-section" id="cast-section">
+                <h3 class="cast-title" id="cast-lbl">В главных ролях</h3>
+                <div class="cast-grid" id="cast-grid"></div>
+            </div>
+            
+            <div class="comments-section">
+                <h3 class="comments-title" id="comments-lbl">Отзывы Гостей</h3>
+                <div class="comment-form">
+                    <input type="text" id="comment-name" placeholder="Ваше имя / Name" required>
+                    <textarea id="comment-text" placeholder="Оставьте ваш отзыв о фильме... / Write a review..." required></textarea>
+                    <button onclick="addComment()" id="comment-btn">Отправить</button>
+                </div>
+                <div class="comments-list" id="comments-list"></div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Твой оригинальный JavaScript из "image.png" (без изменений)
-        const currentMovieId = 'movie_1'; // Пример ID фильма
+        const API_KEY = 'e97f6ed5cfa53eb5fd94bcda452770b6'; 
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMG_URL = 'https://image.tmdb.org/t/p/w300'; 
+        
+        const moviesGrid = document.getElementById('movies-grid');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const langSelect = document.getElementById('lang-select');
+        const titleText = document.getElementById('title-text');
+        const playerModal = document.getElementById('player-modal');
+        const videoIframe = document.getElementById('video-iframe');
+        const movieDetails = document.getElementById('movie-details');
+        const castGrid = document.getElementById('cast-grid');
         const commentsList = document.getElementById('comments-list');
+        
+        let currentLanguage = langSelect.value;
+        let currentMovieId = null;
+        let activeServer = 1;
+        let playerLanguage = 'ru'; 
+
+        loadTrending();
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
+        langSelect.addEventListener('change', (e) => { 
+            currentLanguage = e.target.value; 
+            playerLanguage = currentLanguage.substring(0, 2);
+            updateInterfaceText(); 
+            updateAudioButtonsUI();
+            loadTrending(); 
+        });
+
+        const labels = {
+            "ru": { cast: "В главных ролях", comm: "Отзывы Гостей", send: "Отправить" },
+            "en": { cast: "Top Cast", comm: "Guest Reviews", send: "Submit" },
+            "de": { cast: "Hauptdarsteller", comm: "Gastbewertungen", send: "Absenden" },
+            "ar": { cast: "طاقم العمل", comm: "آراء الضيوف", send: "إرسال" },
+            "fr": { cast: "Acteurs Principaux", comm: "Avis", send: "Soumettre" },
+            "it": { cast: "Cast Principale", comm: "Recensioni", send: "Invia" },
+            "pt": { cast: "Elenco Principal", comm: "Comentários", send: "Enviar" },
+            "es": { cast: "Reparto Principal", comm: "Opiniones", send: "Enviar" }
+        };
+
+        function updateInterfaceText() {
+            const langKey = currentLanguage.substring(0,2);
+            const currentLabels = labels[langKey] || labels["en"];
+            document.getElementById('cast-lbl').innerText = currentLabels.cast;
+            document.getElementById('comments-lbl').innerText = currentLabels.comm;
+            document.getElementById('comment-btn').innerText = currentLabels.send;
+
+            if(currentLanguage.startsWith('ar')) {
+                document.getElementById('header-bar').classList.add('rtl'); document.getElementById('main-content').classList.add('rtl'); document.getElementById('player-modal').classList.add('rtl');
+                searchInput.placeholder = "بحث عن أفلام..."; searchBtn.innerText = "بحث"; titleText.innerText = "الأفلام الشائعة";
+            } else {
+                document.getElementById('header-bar').classList.remove('rtl'); document.getElementById('main-content').classList.remove('rtl'); document.getElementById('player-modal').classList.remove('rtl');
+                if(currentLanguage.startsWith('ru')) { searchInput.placeholder = "Поиск фильмов..."; searchBtn.innerText = "Найти"; titleText.innerText = "Популярные фильмы"; }
+                else if(currentLanguage.startsWith('de')) { searchInput.placeholder = "Filme suchen..."; searchBtn.innerText = "Suche"; titleText.innerText = "Beliebte Filme"; }
+                else if(currentLanguage.startsWith('fr')) { searchInput.placeholder = "Rechercher des films..."; searchBtn.innerText = "Chercher"; titleText.innerText = "Films Populaires"; }
+                else if(currentLanguage.startsWith('it')) { searchInput.placeholder = "Cerca film..."; searchBtn.innerText = "Cerca"; titleText.innerText = "Film Popolari"; }
+                else if(currentLanguage.startsWith('pt')) { searchInput.placeholder = "Pesquisar filmes..."; searchBtn.innerText = "Buscar"; titleText.innerText = "Filmes Populares"; }
+                else if(currentLanguage.startsWith('es')) { searchInput.placeholder = "Buscar películas..."; searchBtn.innerText = "Buscar"; titleText.innerText = "Películas Populares"; }
+                else { searchInput.placeholder = "Search movies..."; searchBtn.innerText = "Search"; titleText.innerText = "Trending Movies"; }
+            }
+        }
+
+        async function loadTrending() { fetchMovies(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}&language=${currentLanguage}`); }
+        
+        async function performSearch() {
+            const query = searchInput.value.trim(); if (!query) return;
+            fetchMovies(`${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=${currentLanguage}`);
+        }
+
+        async function fetchMovies(url) { const response = await fetch(url); const data = await response.json(); displayMovies(data.results); }
+        
+        function displayMovies(movies) {
+            moviesGrid.innerHTML = '';
+            if(!movies || movies.length === 0) return;
+            movies.forEach(movie => {
+                if (!movie.poster_path) return;
+                const card = document.createElement('div'); card.classList.add('movie-card');
+                card.innerHTML = `<img src="${IMG_URL + movie.poster_path}" loading="lazy"><div class="movie-info"><div class="movie-title">${movie.title}</div><div class="movie-meta"><span>${movie.release_date?movie.release_date.split('-')[0]:''}</span><span class="rating">★ ${movie.vote_average.toFixed(1)}</span></div></div>`;
+                card.addEventListener('click', () => openMovie(movie.id, movie.title, movie.overview));
+                moviesGrid.appendChild(card);
+            });
+        }
+
+        function setPlayerSrc() {
+            if (activeServer === 1) {
+                videoIframe.src = `https://vidsrc.me/embed/movie?tmdb=${currentMovieId}&lang=${playerLanguage}`;
+            } else if (activeServer === 2) {
+                videoIframe.src = `https://vidsrc.cc/vidsrc/movie/${currentMovieId}?lang=${playerLanguage}`;
+            } else {
+                videoIframe.src = `https://vidsrc.to/embed/movie/${currentMovieId}`;
+            }
+        }
+
+        function switchServer(srvNum) {
+            if (activeServer === srvNum) return;
+            activeServer = srvNum;
+            document.getElementById('btn-srv1').classList.toggle('active', srvNum === 1);
+            document.getElementById('btn-srv2').classList.toggle('active', srvNum === 2);
+            document.getElementById('btn-srv3').classList.toggle('active', srvNum === 3);
+            setPlayerSrc();
+        }
+
+        function switchPlayerLanguage(langCode) {
+            if (playerLanguage === langCode) return;
+            playerLanguage = langCode;
+            updateAudioButtonsUI();
+            setPlayerSrc();
+        }
+
+        function updateAudioButtonsUI() {
+            const buttons = document.querySelectorAll('.audio-btn');
+            buttons.forEach(btn => {
+                const isCurrent = btn.getAttribute('onclick').includes(`'${playerLanguage}'`);
+                btn.classList.toggle('active', isCurrent);
+            });
+        }
+
+        async function openMovie(movieId, title, overview) {
+            currentMovieId = movieId;
+            activeServer = 1;
+            playerLanguage = currentLanguage.substring(0, 2); 
+            
+            document.getElementById('btn-srv1').classList.add('active');
+            document.getElementById('btn-srv2').classList.remove('active');
+            document.getElementById('btn-srv3').classList.remove('active');
+            
+            updateAudioButtonsUI();
+            setPlayerSrc();
+            movieDetails.innerHTML = `<h2>${title}</h2><p>${overview || ''}</p>`;
+            
+            castGrid.innerHTML = '';
+            try {
+                const castRes = await fetch(`${BASE_URL}/movie/${movieId}/credits?api_key=${API_KEY}`);
+                const castData = await castRes.json();
+                castData.cast.slice(0, 6).forEach(actor => {
+                    const img = actor.profile_path ? ('https://image.tmdb.org/t/p/w185' + actor.profile_path) : 'https://img.icons8.com/ios-filled/100/333333/user-male-circle.png';
+                    const actorCard = document.createElement('div'); actorCard.classList.add('cast-card');
+                    actorCard.innerHTML = `<img src="${img}"><div class="cast-name">${actor.name}</div>`;
+                    castGrid.appendChild(actorCard);
+                });
+            } catch(e) {}
+
+            loadComments();
+            playerModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePlayer() {
+            playerModal.style.display = 'none';
+            videoIframe.removeAttribute('src'); 
+            videoIframe.src = ''; 
+            document.body.style.overflow = 'auto';
+        }
 
         function loadComments() {
             commentsList.innerHTML = '';
-            const allComments = JSON.parse(localStorage.getItem('amur_comments')) || {};
+            const allComments = JSON.parse(localStorage.getItem('amur_comments') || '{}');
             const movieComments = allComments[currentMovieId] || [];
-
             movieComments.forEach(c => {
-                const item = document.createElement('div');
-                item.classList.add('comment-item');
-                
-                // Исправил template literal: добавил класс для хидера
-                item.innerHTML = `<div class="comment-header"><span>${c.name}</span><span>${c.date}</span></div><div>${c.text}</div>`;
+                const item = document.createElement('div'); item.classList.add('comment-item');
+                item.innerHTML = `<div class="comment-header"><span>${c.name}</span><span>${c.date}</span></div><div class="comment-body">${c.text}</div>`;
                 commentsList.appendChild(item);
             });
         }
 
         function addComment() {
-            const nameInput = document.getElementById('comment-name');
-            const textInput = document.getElementById('comment-text');
-
-            const name = nameInput.value.trim();
-            const text = textInput.value.trim();
-
-            if (!name || !text) return;
-
-            const allComments = JSON.parse(localStorage.getItem('amur_comments')) || {};
-
-            if (!allComments[currentMovieId]) {
-                allComments[currentMovieId] = [];
-            }
-
-            allComments[currentMovieId].push({
-                name: name,
-                text: text,
-                date: new Date().toLocaleDateString() // Добавил дату
-            });
-
+            const nameInput = document.getElementById('comment-name'); const textInput = document.getElementById('comment-text');
+            if(!nameInput.value.trim() || !textInput.value.trim()) return;
+            const allComments = JSON.parse(localStorage.getItem('amur_comments') || '{}');
+            if(!allComments[currentMovieId]) allComments[currentMovieId] = [];
+            allComments[currentMovieId].push({ name: nameInput.value.trim(), text: textInput.value.trim(), date: new Date().toLocaleDateString() });
             localStorage.setItem('amur_comments', JSON.stringify(allComments));
-
-            nameInput.value = '';
-            textInput.value = '';
-            loadComments();
+            nameInput.value = ''; textInput.value = ''; loadComments();
         }
-
-        loadComments();
     </script>
 </body>
 </html>

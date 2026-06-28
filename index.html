@@ -84,11 +84,12 @@
         <select id="lang-select">
             <option value="ru-RU">Русский (RU)</option>
             <option value="en-US">English (EN)</option>
-            <option value="pt-BR">Português (BR)</option>
-            <option value="ar-AE">العربية (AR)</option>
-            <option value="es-ES">Español (ES)</option>
-            <option value="fr-FR">Français (FR)</option>
             <option value="de-DE">Deutsch (DE)</option>
+            <option value="ar-AE">العربية (AR)</option>
+            <option value="fr-FR">Français (FR)</option>
+            <option value="it-IT">Italiano (IT)</option>
+            <option value="pt-BR">Português (BR)</option>
+            <option value="es-ES">Español (ES)</option>
         </select>
     </header>
     
@@ -134,7 +135,7 @@
     <script>
         const API_KEY = 'e97f6ed5cfa53eb5fd94bcda452770b6'; 
         const BASE_URL = 'https://api.themoviedb.org/3';
-        const IMG_URL = 'https://image.tmdb.org/t/p/w300'; // Уменьшили размер картинок для скорости
+        const IMG_URL = 'https://image.tmdb.org/t/p/w300'; 
         
         const moviesGrid = document.getElementById('movies-grid');
         const searchInput = document.getElementById('search-input');
@@ -159,11 +160,12 @@
         const labels = {
             "ru": { cast: "В главных ролях", comm: "Отзывы Гостей", send: "Отправить" },
             "en": { cast: "Top Cast", comm: "Guest Reviews", send: "Submit" },
-            "pt": { cast: "Elenco Principal", comm: "Comentários", send: "Enviar" },
+            "de": { cast: "Hauptdarsteller", comm: "Gastbewertungen", send: "Absenden" },
             "ar": { cast: "طاقم العمل", comm: "آراء الضيوف", send: "إرسال" },
-            "es": { cast: "Reparto Principal", comm: "Opiniones", send: "Enviar" },
             "fr": { cast: "Acteurs Principaux", comm: "Avis", send: "Soumettre" },
-            "de": { cast: "Hauptdarsteller", comm: "Gastbewertungen", send: "Absenden" }
+            "it": { cast: "Cast Principale", comm: "Recensioni degli Ospiti", send: "Invia" },
+            "pt": { cast: "Elenco Principal", comm: "Comentários", send: "Enviar" },
+            "es": { cast: "Reparto Principal", comm: "Opiniones", send: "Enviar" }
         };
 
         function updateInterfaceText() {
@@ -179,6 +181,11 @@
             } else {
                 document.getElementById('header-bar').classList.remove('rtl'); document.getElementById('main-content').classList.remove('rtl'); document.getElementById('player-modal').classList.remove('rtl');
                 if(currentLanguage.startsWith('ru')) { searchInput.placeholder = "Поиск фильмов..."; searchBtn.innerText = "Найти"; titleText.innerText = "Популярные фильмы"; }
+                else if(currentLanguage.startsWith('de')) { searchInput.placeholder = "Filme suchen..."; searchBtn.innerText = "Suche"; titleText.innerText = "Beliebte Filme"; }
+                else if(currentLanguage.startsWith('fr')) { searchInput.placeholder = "Rechercher des films..."; searchBtn.innerText = "Chercher"; titleText.innerText = "Films Populaires"; }
+                else if(currentLanguage.startsWith('it')) { searchInput.placeholder = "Cerca film..."; searchBtn.innerText = "Cerca"; titleText.innerText = "Film Popolari"; }
+                else if(currentLanguage.startsWith('pt')) { searchInput.placeholder = "Pesquisar filmes..."; searchBtn.innerText = "Buscar"; titleText.innerText = "Filmes Populares"; }
+                else if(currentLanguage.startsWith('es')) { searchInput.placeholder = "Buscar películas..."; searchBtn.innerText = "Buscar"; titleText.innerText = "Películas Populares"; }
                 else { searchInput.placeholder = "Search movies..."; searchBtn.innerText = "Search"; titleText.innerText = "Trending Movies"; }
             }
         }
@@ -205,10 +212,12 @@
         }
 
         function setPlayerSrc() {
+            // Умный подбор: берем язык из основного меню сайта
+            const langIso = currentLanguage.substring(0, 2); 
             if (activeServer === 1) {
-                videoIframe.src = `https://vidsrc.me/embed/movie?tmdb=${currentMovieId}`;
+                videoIframe.src = `https://vidsrc.me/embed/movie?tmdb=${currentMovieId}&lang=${langIso}`;
             } else {
-                videoIframe.src = `https://vidsrc.cc/vidsrc/movie/${currentMovieId}`;
+                videoIframe.src = `https://vidsrc.cc/vidsrc/movie/${currentMovieId}?lang=${langIso}`;
             }
         }
 
@@ -248,7 +257,7 @@
 
         function closePlayer() {
             playerModal.style.display = 'none';
-            videoIframe.removeAttribute('src'); // Мгновенно убиваем iframe из памяти, убирая лаги назад!
+            videoIframe.removeAttribute('src'); 
             videoIframe.src = ''; 
             document.body.style.overflow = 'auto';
         }

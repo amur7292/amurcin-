@@ -101,9 +101,9 @@
     <div class="player-modal" id="player-modal">
         <span class="close-btn" onclick="closePlayer()">&times;</span>
         <div class="player-wrapper">
-            <!-- Sandbox блокирует всплывающие окна казино -->
+            <!-- Плеер без ломающего sandbox -->
             <div class="player-container">
-                <iframe id="video-iframe" src="" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms"></iframe>
+                <iframe id="video-iframe" src="" allowfullscreen></iframe>
             </div>
             
             <div class="movie-details" id="movie-details"></div>
@@ -158,7 +158,7 @@
             "ru": { cast: "В главных ролях", comm: "Отзывы Гостей", send: "Отправить" },
             "en": { cast: "Top Cast", comm: "Guest Reviews", send: "Submit" },
             "pt": { cast: "Elenco Principal", comm: "Comentários dos Hóspedes", send: "Enviar" },
-            "ar": { cast: "طاقم العمل", comm: "آراء الضيوف", send: "إرسال" },
+            "ar": { cast: "طاقم العمل", comm: "آراء الضиوف", send: "إرسال" },
             "es": { cast: "Reparto Principal", comm: "Opiniones de los Huéspedes", send: "Enviar" },
             "fr": { cast: "Acteurs Principaux", comm: "Avis des Invités", send: "Soumettre" },
             "de": { cast: "Hauptdarsteller", comm: "Gastbewertungen", send: "Absenden" }
@@ -210,7 +210,8 @@
 
         async function openMovie(movieId, title, overview) {
             currentMovieId = movieId;
-            videoIframe.src = `https://vidsrc.to/embed/movie/${movieId}`;
+            // Переключили на чистый и стабильный плеер vidsrc.me
+            videoIframe.src = `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
             movieDetails.innerHTML = `<h2>${title}</h2><p>${overview || ''}</p>`;
             
             // Загрузка актеров
@@ -229,7 +230,7 @@
 
             loadComments();
             playerModal.style.display = 'block';
-            document.body.style.overflow = 'hidden'; // Запретить скролл заднего фона
+            document.body.style.overflow = 'hidden'; 
         }
 
         function closePlayer() { playerModal.style.display = 'none'; videoIframe.src = ''; document.body.style.overflow = 'auto'; }

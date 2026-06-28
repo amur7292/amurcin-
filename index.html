@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMUR Cinema</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #0d0d0d; color: #e5e5e5; overflow-x: hidden; }
+        header { background-color: #141414; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 2px solid #ff6a00; box-shadow: 0 4px 20px rgba(255, 106, 0, 0.15); }
+        .logo-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .logo { color: #ff6a00; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px rgba(255, 106, 0, 0.5); }
+        .tiger-icon { width: 30px; height: 30px; opacity: 0.9; }
+        .search-container { display: flex; align-items: center; gap: 10px; width: 45%; }
+        .search-container input { width: 100%; padding: 12px 20px; border-radius: 25px; border: 2px solid #ff6a00; background-color: #1a1a1a; color: white; font-size: 16px; outline: none; transition: 0.3s; }
+        .search-container input:focus { box-shadow: 0 0 12px rgba(255, 106, 0, 0.6); }
+        .search-container button { padding: 12px 25px; border-radius: 25px; border: none; background-color: #ff6a00; color: black; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .search-container button:hover { background-color: #ff8533; box-shadow: 0 0 15px #ff6a00; transform: scale(1.03); }
+        select { background-color: #141414; color: #ff6a00; border: 2px solid #ff6a00; padding: 10px 15px; border-radius: 20px; cursor: pointer; outline: none; font-weight: bold; }
+        main { padding: 40px 5%; position: relative; }
+        main::before { content: ""; position: fixed; bottom: 20px; right: 20px; width: 150px; height: 150px; background-image: url('https://img.icons8.com/ios-filled/200/ff6a00/tiger.png'); background-size: contain; background-repeat: no-repeat; opacity: 0.04; pointer-events: none; z-index: -1; }
+        .section-title { color: white; font-size: 26px; margin-bottom: 25px; border-left: 5px solid #ff6a00; padding-left: 15px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .title-tiger { width: 24px; height: 24px; opacity: 0.8; }
+        .movies-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; }
+        .movie-card { background-color: #141414; border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.4s; border: 1px solid #222; }
+        .movie-card:hover { transform: scale(1.04); box-shadow: 0 10px 20px rgba(255, 106, 0, 0.3); border-color: #ff6a00; }
+        .movie-card img { width: 100%; height: 300px; object-fit: cover; }
+        .movie-info { padding: 15px; background: linear-gradient(180deg, #141414 0%, #0a0a0a 100%); }
+        .movie-title { font-size: 15px; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .movie-meta { display: flex; justify-content: space-between; font-size: 13px; color: #999; margin-top: 8px; }
+        .rating { color: #ff6a00; font-weight: bold; }
+        .player-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(5, 5, 5, 0.98); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; padding: 20px; }
+        .player-container { width: 90%; max-width: 1050px; height: 0; padding-bottom: 50.625%; position: relative; background-color: black; box-shadow: 0 0 30px rgba(255, 106, 0, 0.4); border-radius: 12px; overflow: hidden; border: 2px solid #ff6a00; }
+        .player-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .close-btn { position: absolute; top: 25px; right: 35px; font-size: 40px; color: #999; cursor: pointer; transition: 0.3s; }
+        .close-btn:hover { color: #ff6a00; transform: rotate(90deg); }
+        .movie-details { margin-top: 25px; color: white; text-align: center; max-width: 850px; }
+        .movie-details h2 { color: #ff6a00; margin-bottom: 12px; }
+        .movie-details p { font-size: 15px; color: #bbb; line-height: 1.6; }
+        .rtl { direction: rtl; text-align: right; }
+        .rtl .section-title { border-left: none; border-right: 5px solid #ff6a00; padding-left: 0; padding-right: 15px; }
+    </style>
+</head>
+<body>
+    <header id="header-bar">
+        <div class="logo-container" onclick="loadTrending()">
+            <img class="tiger-icon" src="https://img.icons8.com/ios-filled/50/ff6a00/tiger.png">
+            <div class="logo">Amur Cinema</div>
+        </div>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Поиск фильмов...">
+            <button id="search-btn">Найти</button>
+        </div>
+        <select id="lang-select">
+            <option value="ru-RU">Русский (RU)</option>
+            <option value="en-US">English (EN)</option>
+            <option value="pt-BR">Português (BR)</option>
+            <option value="ar-AE">العربية (AR)</option>
+            <option value="es-ES">Español (ES)</option>
+            <option value="fr-FR">Français (FR)</option>
+            <option value="de-DE">Deutsch (DE)</option>
+        </select>
+    </header>
+    <main id="main-content">
+        <h2 class="section-title" id="grid-title">
+            <img class="title-tiger" src="https://img.icons8.com/ios-filled/30/ff6a00/tiger.png">
+            <span id="title-text">Популярные фильмы</span>
+        </h2>
+        <div class="movies-grid" id="movies-grid"></div>
+    </main>
+    <div class="player-modal" id="player-modal">
+        <span class="close-btn" onclick="closePlayer()">&times;</span>
+        <div class="player-container"><iframe id="video-iframe" src="" allowfullscreen></iframe></div>
+        <div class="movie-details" id="movie-details"></div>
+    </div>
+    <script>
+        const API_KEY = 'e97f6ed5cfa53eb5fd94bcda452770b6'; 
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMG_URL = 'https://image.tmdb.org/t/p/w500';
+        const moviesGrid = document.getElementById('movies-grid');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const langSelect = document.getElementById('lang-select');
+        const titleText = document.getElementById('title-text');
+        const playerModal = document.getElementById('player-modal');
+        const videoIframe = document.getElementById('video-iframe');
+        const movieDetails = document.getElementById('movie-details');
+        const headerBar = document.getElementById('header-bar');
+        const mainContent = document.getElementById('main-content');
+        let currentLanguage = langSelect.value;
+
+        loadTrending();
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
+        langSelect.addEventListener('change', (e) => { currentLanguage = e.target.value; updateInterfaceText(); loadTrending(); });
+
+        function updateInterfaceText() {
+            if(currentLanguage.startsWith('ar')) {
+                headerBar.classList.add('rtl'); mainContent.classList.add('rtl');
+                searchInput.placeholder = "بحث عن أفلام..."; searchBtn.innerText = "بحث"; titleText.innerText = "الأفلام الشائعة";
+            } else {
+                headerBar.classList.remove('rtl'); mainContent.classList.remove('rtl');
+                if(currentLanguage.startsWith('ru')) { searchInput.placeholder = "Поиск фильмов..."; searchBtn.innerText = "Найти"; titleText.innerText = "Популярные фильмы"; }
+                else if(currentLanguage.startsWith('pt')) { searchInput.placeholder = "Pesquisar filmes..."; searchBtn.innerText = "Buscar"; titleText.innerText = "Filmes Populares"; }
+                else if(currentLanguage.startsWith('es')) { searchInput.placeholder = "Buscar películas..."; searchBtn.innerText = "Buscar"; titleText.innerText = "Películas Populares"; }
+                else if(currentLanguage.startsWith('fr')) { searchInput.placeholder = "Rechercher des films..."; searchBtn.innerText = "Chercher"; titleText.innerText = "Films Populaires"; }
+                else if(currentLanguage.startsWith('de')) { searchInput.placeholder = "Filme suchen..."; searchBtn.innerText = "Suche"; titleText.innerText = "Beliebte Filme"; }
+                else { searchInput.placeholder = "Search movies..."; searchBtn.innerText = "Search"; titleText.innerText = "Trending Movies"; }
+            }
+        }
+        async function loadTrending() { fetchMovies(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}&language=${currentLanguage}`); }
+        async function performSearch() {
+            const query = searchInput.value.trim(); if (!query) return;
+            if(currentLanguage.startsWith('ar')) titleText.innerText = `نتائج البحث عن: "${query}"`;
+            else if(currentLanguage.startsWith('ru')) titleText.innerText = `Результаты поиска: "${query}"`;
+            else if(currentLanguage.startsWith('pt')) titleText.innerText = `Resultados para: "${query}"`;
+            else if(currentLanguage.startsWith('es')) titleText.innerText = `Resultados de búsqueda: "${query}"`;
+            else if(currentLanguage.startsWith('fr')) titleText.innerText = `Résultats pour: "${query}"`;
+            else if(currentLanguage.startsWith('de')) titleText.innerText = `Suchergebnisse für: "${query}"`;
+            else titleText.innerText = `Search results for: "${query}"`;
+            fetchMovies(`${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=${currentLanguage}`);
+        }
+        async function fetchMovies(url) { const response = await fetch(url); const data = await response.json(); displayMovies(data.results); }
+        function displayMovies(movies) {
+            moviesGrid.innerHTML = '';
+            const noResults = {"ru": "Ничего не найдено", "en": "No results found", "pt": "Nenhum resultado encontrado", "ar": "لم يتم العثور على نتائج", "es": "No se encontraron resultados", "fr": "Aucun résultat trouvé", "de": "Keine Ergebnisse gefunden"};
+            if(!movies || movies.length === 0) { moviesGrid.innerHTML = `<p style="color:#ff6a00;grid-column:1/-1;text-align:center;font-weight:bold;">${noResults[currentLanguage.substring(0,2)] || noResults["en"]}</p>`; return; }
+            movies.forEach(movie => {
+                if (!movie.poster_path) return;
+                const card = document.createElement('div'); card.classList.add('movie-card');
+                card.innerHTML = `<img src="${IMG_URL + movie.poster_path}"><div class="movie-info"><div class="movie-title">${movie.title}</div><div class="movie-meta"><span>${movie.release_date?movie.release_date.split('-')[0]:'N/A'}</span><span class="rating">★ ${movie.vote_average.toFixed(1)}</span></div></div>`;
+                card.addEventListener('click', () => {
+                    videoIframe.src = `https://vidsrc.to/embed/movie/${movie.id}`;
+                    movieDetails.innerHTML = `<h2>${movie.title}</h2><p>${movie.overview || ''}</p>`;
+                    if(currentLanguage.startsWith('ar')) movieDetails.classList.add('rtl'); else movieDetails.classList.remove('rtl');
+                    playerModal.style.display = 'flex';
+                });
+                moviesGrid.appendChild(card);
+            });
+        }
+        function closePlayer() { playerModal.style.display = 'none'; videoIframe.src = ''; }
+    </script>
+</body>
+</html>
+
+```
